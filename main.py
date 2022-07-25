@@ -7,12 +7,6 @@ import speech_recognition as sr
 import threading
 import time
 import pyautogui as pa
-import pygame
-
-pygame.init()
-pygame.mixer.music.load('executado.mp3')
-pygame.mixer.music.play()
-time.sleep(1)
 
 rec = sr.Recognizer()
 
@@ -210,45 +204,25 @@ def recvoice():
                 print(texto)
 
                 if texto == "Desligar programa":
-                    pygame.mixer.music.load('executado.mp3')
-                    pygame.mixer.music.play()
-                    time.sleep(1)
                     break
 
                 elif texto == "pressionar":
-                    pygame.mixer.music.load('executado.mp3')
-                    pygame.mixer.music.play()
-                    time.sleep(1)
                     pa.mouseDown()
 
                 elif texto == "soltar":
-                    pygame.mixer.music.load('executado.mp3')
-                    pygame.mixer.music.play()
-                    time.sleep(1)
                     pa.mouseUp()
 
                 elif texto == "apertar" or texto == "despertar":
-                    pygame.mixer.music.load('executado.mp3')
-                    pygame.mixer.music.play()
-                    time.sleep(1)
                     pa.click()
 
                 elif texto == "abrir":
-                    pygame.mixer.music.load('executado.mp3')
-                    pygame.mixer.music.play()
-                    time.sleep(1)
                     pa.click()
                     pa.click()
 
                 elif texto == "enviar":
-                    pygame.mixer.music.load('executado.mp3')
-                    pygame.mixer.music.play()
-                    time.sleep(1)
                     pa.press('enter')
 
                 elif texto == "escrever":
-                    pygame.mixer.music.load('escrever.mp3')
-                    pygame.mixer.music.play()
                     time.sleep(1)
 
                     print("> ", end="")
