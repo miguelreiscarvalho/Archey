@@ -36,6 +36,9 @@ LEFT_IRIS = [474, 475, 476, 477]
 RIGHT_IRIS = [469, 470, 471, 472]
 mouth1 = [0, 72, 12, 302]
 mouth2 = [15, 85, 16, 315]
+eyebrow = [52, 65, 66, 66]
+llc = [61, 76, 62, 78]
+rlc = [308, 291, 308, 291]
 
 cap = cv.VideoCapture("https://192.168.0.110:8080/video")
 
@@ -49,7 +52,7 @@ ganhoy = None
 
 var1 = 0
 var2 = 0
-
+var3 = 0
 
 def main():
     with mp_face_mesh.FaceMesh(
@@ -62,7 +65,7 @@ def main():
         while True:
 
             #  Variavies Globais
-            global var1, var2, beginnerclick, on_off, ganhox, ganhoy, beginnerpress
+            global var1, var2, var3, beginnerclick, on_off, ganhox, ganhoy, beginnerpress
 
             ret, frame = cap.read()
             if not ret:
@@ -82,11 +85,15 @@ def main():
                 (r_cx, r_cy), r_radius = cv.minEnclosingCircle(mesh_points[RIGHT_IRIS])
                 (m_cx, m_cy), m_radius = cv.minEnclosingCircle(mesh_points[mouth1])
                 (m2_cx, m2_cy), m2_radius = cv.minEnclosingCircle(mesh_points[mouth2])
-                (px, py), p_radius = cv.minEnclosingCircle(mesh_points[[52, 65, 66, 66]])
+                (px, py), p_radius = cv.minEnclosingCircle(mesh_points[eyebrow])
+                (llcx, llcy), llc_radius = cv.minEnclosingCircle(mesh_points[llc])
+                (rlcx, rlcy), rlc_radius = cv.minEnclosingCircle(mesh_points[rlc])
 
                 point_m = (np.array([m_cx, m_cy], dtype=np.int32))
                 point_m2 = (np.array([m2_cx, m2_cy], dtype=np.int32))
                 pp = (np.array([px, py], dtype=np.int32))
+                cllc = (np.array([llcx, llcy], dtype=np.int32))
+                crlc = (np.array([rlcx, rlcy], dtype=np.int32))
 
                 center_left = (np.array([l_cx, l_cy], dtype=np.int32))
                 center_right = (np.array([r_cx, r_cy], dtype=np.int32))
@@ -96,31 +103,50 @@ def main():
                 cv.circle(frame, point_m, int(l_radius * 0.3), (255, 0, 255), 1, cv.LINE_AA)
                 cv.circle(frame, point_m2, int(l_radius * 0.3), (255, 0, 255), 1, cv.LINE_AA)
                 cv.circle(frame, pp, int(p_radius * 0.3), (255, 0, 255), 1, cv.LINE_AA)
+                cv.circle(frame, cllc, int(llc_radius), (255, 0, 255), 1, cv.LINE_AA)
+                cv.circle(frame, crlc, int(rlc_radius), (255, 0, 255), 1, cv.LINE_AA)
 
                 pointclick = center_right[1] - pp[1]
                 pointpress = point_m2[1] - point_m[1]
+                pointright = crlc[0] - cllc[0]
 
                 if beginnerclick == 0:
                     beginnerpoint = pointclick
+                    beginnerright = pointright
+                    beginnerpress = pointpress
                     beginnerclick = 1
 
+                #  Comando o click 1
                 if pointclick >= beginnerpoint + 12:
                     var1 = 1
 
                 else:
                     var1 = 0
 
-                if beginnerpress == 0:
-                    beginnerpress = pointpress
-                    beginnerpress = 1
-
+                #  Comando pressionar 2
                 if pointpress >= beginnerpress+60:
-                    var2 = 1
-
-                else:
                     var2 = 2
 
+                #  Comando soltar 3
+                elif pointpress < beginnerpress+60:
+                    var2 = 3
+
+                else:
+                    var2 = 0
+
+                #  Comando botão direito 4
+                if pointright >= beginnerright+20:
+                    var3 = 4
+
+                # Comando Esc 5
+                elif pointright <= beginnerright-10:
+                    var3 = 5
+
+                else:
+                    var3 = 0
+
                 cv.line(frame, point_m, point_m2, (255, 0, 0), 1)
+                cv.line(frame, cllc, crlc, (255, 0, 0), 1)
                 cv.line(frame, center_right, pp, (255, 0, 0), 1)
 
             x = ((l_cx + r_cx) * 0.5)
@@ -170,9 +196,15 @@ def main():
             key = cv.waitKey(1)
 
             if key == 27:
-                var1 = 3
-                var2 = 3
+                var1 = 6
+                var2 = 6
+                var3 = 6
                 break
+
+
+dict_rv = [["desligar", "desativar", "Desligar programa", "interromper programa", "Fechar programa" ],
+           ["pressionar", "segurar", "Personare", "personagem"], ["soltar", "largar", "despertar"], ["apertar"],
+           ["abrir", "expandir"], ["enviar", "mandar"], ["escrever", "digitar"], ["espaço"]]
 
 
 def recvoice():
@@ -186,26 +218,26 @@ def recvoice():
 
                 print(texto)
 
-                if texto == "Desligar programa":
+                if texto in dict_rv[0]:
                     break
 
-                elif texto == "pressionar":
+                elif texto in dict_rv[1]:
                     pa.mouseDown()
 
-                elif texto == "soltar":
+                elif texto in dict_rv[2]:
                     pa.mouseUp()
 
-                elif texto == "apertar" or texto == "despertar":
+                elif texto in dict_rv[3]:
                     pa.click()
 
-                elif texto == "abrir":
+                elif texto in dict_rv[4]:
                     pa.click()
                     pa.click()
 
-                elif texto == "enviar":
+                elif texto in dict_rv[5]:
                     pa.press('enter')
 
-                elif texto == "escrever":
+                elif texto in dict_rv[6]:
                     time.sleep(1)
 
                     print("> ", end="")
@@ -214,35 +246,60 @@ def recvoice():
                     pa.write(f"{escrito}")
                     print(escrito)
 
+                elif texto in dict_rv[7]:
+                    pa.write(f" ")
+
                 else:
                     pass
 
                 print("\n")
 
-                print(time.time())
 
 
             except:
                 pass
 
 
+key_acess = 0
+
+
 def pressionar():
+    global key_acess
     while True:
         try:
-            if var2 == 1:
-                pa.mouseDown()
-                time.sleep(0.3)
+            # Gastar memoria
+            print("", end="")
 
-            elif var2 == 2:
-                pa.mouseUp()
-                time.sleep(0.3)
+            if var2 == 2:
 
-            elif var2 == 3:
+                time.sleep(0.5)
+
+                if var2 == 2:
+                    print("Pressionou")
+                    key_acess = 1
+                    pa.mouseDown()
+
+                else:
+                    pass
+
+            elif key_acess == 1:
+
+                if var2 == 3:
+                    key_acess = 0
+                    time.sleep(0.5)
+
+                    if var2 == 3:
+                        print("Soltou")
+                        pa.mouseUp()
+
+                    else:
+                        pass
+
+            elif var2 == 6:
                 break
 
 
         except:
-            time.sleep(0.00005)
             print("Falhou")
             pass
 
@@ -255,25 +312,59 @@ def click():
             print("", end="")
 
             if var1 == 1:
-                print("Clicou")
-                pa.click()
-                time.sleep(0.3)
 
-            elif var1 == 3:
+                time.sleep(0.1)
+
+                if var1 == 1:
+                    print("Clicou")
+                    pa.click()
+                    time.sleep(0.3)
+
+                else:
+                    pass
+
+            elif var1 == 6:
                 break
 
-            elif var1 == 0:
-                time.sleep(0.00005)
-                pass
-
         except:
-            time.sleep(0.00005)
+
             pass
 
 
+def button_right():
+    while True:
+
+        try:
+            # Gastar memoria
+            print("", end="")
+
+            if var3 == 4:
+                time.sleep(0.5)
+                if var3 == 4:
+                    print("Click Direito")
+                    pa.click(button="right")
+
+                else:
+                    pass
+
+            elif var3 == 5:
+                time.sleep(0.5)
+                if var3 == 5:
+                    print("Esc")
+                    pa.press('esc')
+
+                else:
+                    pass
+
+            elif var3 == 6:
+                break
+
+        except:
+            pass
 
 
-"""if __name__ == '__main__':
+"""
+if __name__ == '__main__':
     threading.Thread(target=main).start()
     #  recvoice()
 
