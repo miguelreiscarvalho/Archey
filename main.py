@@ -40,7 +40,7 @@ eyebrow = [52, 65, 66, 66]
 llc = [61, 76, 62, 78]
 rlc = [308, 291, 308, 291]
 
-cap = cv.VideoCapture("https://192.168.0.110:8080/video")
+cap = cv.VideoCapture()
 
 first_value_y = []
 first_value_x = []
@@ -103,8 +103,8 @@ def main():
                 cv.circle(frame, point_m, int(l_radius * 0.3), (255, 0, 255), 1, cv.LINE_AA)
                 cv.circle(frame, point_m2, int(l_radius * 0.3), (255, 0, 255), 1, cv.LINE_AA)
                 cv.circle(frame, pp, int(p_radius * 0.3), (255, 0, 255), 1, cv.LINE_AA)
-                cv.circle(frame, cllc, int(llc_radius), (255, 0, 255), 1, cv.LINE_AA)
-                cv.circle(frame, crlc, int(rlc_radius), (255, 0, 255), 1, cv.LINE_AA)
+                cv.circle(frame, cllc, int(llc_radius), (255, 0, 255), 1, cv.LINE_AA)  # Click
+                cv.circle(frame, crlc, int(rlc_radius), (255, 0, 255), 1, cv.LINE_AA)  # Click
 
                 pointclick = center_right[1] - pp[1]
                 pointpress = point_m2[1] - point_m[1]
@@ -117,7 +117,9 @@ def main():
                     beginnerclick = 1
 
                 #  Comando o click 1
-                if pointclick >= beginnerpoint + 12:
+                print(f"{pointclick} - {beginnerpoint}")
+
+                if pointclick >= beginnerpoint + 7:
                     var1 = 1
 
                 else:
@@ -363,18 +365,12 @@ def button_right():
             pass
 
 
-"""
-if __name__ == '__main__':
-    threading.Thread(target=main).start()
-    #  recvoice()
 
-    time.sleep(0.5)
-    threading.Thread(target=click).start()
+threading.Thread(target=main).start()
+#  recvoice()
 
-    time.sleep(0.5)
-    pressionar()
+# time.sleep(0.5)
+# threading.Thread(target=click).start()
 
-
-
-
-"""
+#time.sleep(0.5)
+# pressionar()
